@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top-Down Racer - HTML5 Car Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Top-Down Racer</h1>
+        <div class="game-info">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="level">Level: <span id="level">1</span></div>
+            <div class="lives">Lives: <span id="lives">3</span></div>
+        </div>
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        <div class="controls">
+            <p>Use <strong>Arrow Keys</strong> to move. Avoid obstacles!</p>
+            <button id="startBtn">Start Game</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="muteBtn">Mute</button>
+        </div>
+        <audio id="backgroundMusic" loop>
+            <source src="Music/Dreams.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="crashSound">
+            <source src="Music/crash.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+    <script src="game3.js"></script>
+</body>
+</html>
