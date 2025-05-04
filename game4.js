@@ -28,42 +28,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastShakeTime = 0;
     let collisionFlashFrames = 0;
 
-    // Set fixed mobile dimensions
-    function setCanvasSize() {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-            // Fixed mobile size (640x800)
-            const targetWidth = 640;
-            const targetHeight = 800;
-            
-            // Calculate scale to fit viewport
-            const widthScale = window.innerWidth / targetWidth;
-            const heightScale = window.innerHeight / targetHeight;
-            const scale = Math.min(widthScale, heightScale) * 0.9;
-            
-            // Apply scaling
-            canvas.width = targetWidth;
-            canvas.height = targetHeight;
-            canvas.style.width = `${targetWidth * scale}px`;
-            canvas.style.height = `${targetHeight * scale}px`;
-            
-            gameContainer.style.width = `${targetWidth * scale + 40}px`;
-            gameContainer.style.transform = `scale(${scale})`;
-            gameContainer.style.transformOrigin = 'top center';
-        } else {
-            // Desktop dimensions
-            canvas.width = 400;
-            canvas.height = 600;
-            canvas.style.width = '400px';
-            canvas.style.height = '600px';
-            gameContainer.style.width = '440px';
-            gameContainer.style.transform = 'none';
-        }
-    }
+   function calculateScale(targetWidth, targetHeight) {
+    const widthScale = window.innerWidth / targetWidth;
+    const heightScale = window.innerHeight / targetHeight;
+    return Math.min(widthScale, heightScale) * 0.9;
+}
 
-    setCanvasSize();
-    window.addEventListener('resize', setCanvasSize);
+function applyCanvasStyle(canvas, width, height, scale) {
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `${width * scale}px`;
+    canvas.style.height = `${height * scale}px`;
+}
+
+function setCanvasSize(gameContainer) {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const targetWidth = isMobile ? 640 : 400;
+    const targetHeight = isMobile ? 800 : 600;
+    const scale = calculateScale(targetWidth, targetHeight);
+
+    applyCanvasStyle(canvas, targetWidth, targetHeight, scale);
+
+    if (gameContainer) {
+        gameContainer.style.width = `${targetWidth * scale + 40}px`;
+        gameContainer.style.transform = `scale(${scale})`;
+        gameContainer.style.transformOrigin = 'top center';
+    }
+}
+
+setCanvasSize(document.querySelector('.game-container'));
     // Set canvas size based on device
     canvas.width = baseWidth;
     canvas.height = baseHeight;
