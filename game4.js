@@ -28,13 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastShakeTime = 0;
     let collisionFlashFrames = 0;
 
-    // Device detection and sizing (NEW)
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
+    // Set fixed mobile dimensions
+    function setCanvasSize() {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
         if (isMobile) {
             // Fixed mobile size (640x800)
             const targetWidth = 640;
-            const targetHeight = 1200;
+            const targetHeight = 800;
             
             // Calculate scale to fit viewport
             const widthScale = window.innerWidth / targetWidth;
@@ -60,6 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gameContainer.style.transform = 'none';
         }
     }
+
+    setCanvasSize();
+    window.addEventListener('resize', setCanvasSize);
     // Set canvas size based on device
     canvas.width = baseWidth;
     canvas.height = baseHeight;
