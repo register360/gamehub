@@ -106,3 +106,14 @@ button:hover {
 .game-over button {
     margin-top: 15px;
 }
+@media (max-height: 700px) {
+    .game-container {
+        padding: 5px;
+    }
+    #gameCanvas {
+        height: 80vh;
+    }
+    .controls {
+        margin-top: 5px;
+    }
+}
