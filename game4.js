@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isMobile) {
             // Fixed mobile size (640x800)
             const targetWidth = 640;
-            const targetHeight = 800;
+            const targetHeight = 1200;
             
             // Calculate scale to fit viewport
             const widthScale = window.innerWidth / targetWidth;
