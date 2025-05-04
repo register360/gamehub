@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Device detection and sizing (NEW)
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const baseWidth = isMobile ? window.innerWidth * 0.9 : 400;
+    const baseWidth = Math.min(window.innerWidth * 0.9, 400);
     const baseHeight = isMobile ? Math.max(window.innerHeight * 0.7, 500) : 600;
     
     // Set canvas size based on device
@@ -460,19 +460,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('playAgainBtn').addEventListener('click', startGame);
     }
 
-    // Handle window resize (NEW)
+    // Enhanced resize handler for mobile
     function handleResize() {
-        if (!isMobile) return;
-        
-        const newWidth = window.innerWidth * 0.9;
-        const newHeight = window.innerHeight * 0.7;
+        const newWidth = Math.min(window.innerWidth * 0.9, 400);
+        const newHeight = isMobile ? Math.max(window.innerHeight * 0.7, 500) : 600;
         
         if (Math.abs(canvas.width - newWidth) > 10 || Math.abs(canvas.height - newHeight) > 10) {
             canvas.width = newWidth;
             canvas.height = newHeight;
             
-            // Adjust car position after resize
-            carX = Math.min(Math.max(laneWidth / 2, carX), canvas.width - carWidth - laneWidth / 2);
+            // Recalculate car dimensions
+            const newCarWidth = isMobile ? newWidth * 0.2 : 60;
+            const newCarHeight = isMobile ? newWidth * 0.35 : 100;
+            
+            // Adjust car position
+            carX = Math.min(Math.max(laneWidth / 2, carX * newWidth / canvas.width), 
+                      newWidth - newCarWidth - laneWidth / 2);
         }
     }
 
