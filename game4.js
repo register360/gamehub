@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Device detection and sizing (NEW)
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const baseWidth = isMobile ? window.innerWidth * 0.9 : 400;
-    const baseHeight = isMobile ? window.innerHeight * 0.7 : 800;
+    const baseHeight = isMobile ? Math.max(window.innerHeight * 0.7, 500) : 600;
     
     // Set canvas size based on device
     canvas.width = baseWidth;
@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const laneWidth = canvas.width / 3;
 
     // Car variables (adjusted for responsive sizing)
-    const carWidth = isMobile ? baseWidth * 0.1 : 40;
-    const carHeight = isMobile ? baseWidth * 0.175 : 70;
+    const carWidth = isMobile ? baseWidth * 0.2 : 60;
+    const carHeight = isMobile ? baseWidth * 0.35 : 100;
     let carX = canvas.width / 2 - carWidth / 2;
     const carY = canvas.height - carHeight - 20;
     let carSpeed = isMobile ? 8 : 5; // Slightly faster on mobile
