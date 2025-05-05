@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dy = touchEndY - touchStartY;
         
         // Check if it's primarily a horizontal swipe
-        if (Math.abs(dx) > Math.abs(dy) {
+        if (Math.abs(dx) > Math.abs(dy)) {
             if (Math.abs(dx) > minSwipeDistance) {
                 if (dx > 0) {
                     // Swipe right
