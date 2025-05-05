@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Device detection and sizing (NEW)
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const baseWidth = isMobile ? window.innerWidth * 0.9 : 400;
-    const baseHeight = isMobile ? window.innerHeight * 0.7 : 800;
+    const baseHeight = isMobile ? window.innerHeight * 0.7 : 400;
     
     // Set canvas size based on device
     canvas.width = baseWidth;
