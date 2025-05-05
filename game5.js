@@ -21,17 +21,29 @@ document.addEventListener('DOMContentLoaded', () => {
     let muted = false;
     let animationId = null;
     let gameOverDiv = null;
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-let obstacles = [];
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    let obstacles = [];
+    
     // Collision effect variables
     let shakeIntensity = 0;
     let shakeDuration = 0;
     let lastShakeTime = 0;
     let collisionFlashFrames = 0;
+    
+    // High score tracking
+    let highScore = localStorage.getItem('highScore') || 0;
+    const highScoreElement = document.getElementById('highScore');
+
+    // Touch control variables
+    let touchId = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+    const minSwipeDistance = 50;
 
     // Responsive setup
     function setupResponsiveGame() {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const isPortrait = window.innerHeight > window.innerWidth;
 
         // Set dimensions based on device and orientation
@@ -87,11 +99,6 @@ let obstacles = [];
     const carImg = new Image();
     carImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA3MCI+PHBhdGggZmlsbD0iIzM0OThkYiIgZD0iTTUgMTVoMzB2NDBINXoiLz48cGF0aCBmaWxsPSIjZTY3ZWEyIiBkPSJNMTAgMjBoMjB2MzBIMTB6Ii8+PGNpcmNsZSBjeD0iMTAiIGN5PSI1NSIgcj0iOCIgZmlsbD0iIzI2MjYyNiIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iNTUiIHI9IjgiIGZpbGw9IiMyNjI2MjYiLz48Y2lyY2xlIGN4PSIxMCIgY3k9IjU1IiByPSI0IiBmaWxsPSIjYmRjM2Q3Ii8+PGNpcmNsZSBjeD0iMzAiIGN5PSI1NSIgcj0iNCIgZmlsbD0iI2JkYzNkNyIvPjxwYXRoIGZpbGw9IiNlNzRmOGMiIGQ9Ik0xNSAxMGwxMCAxMCAxMC0xMHoiLz48L3N2Zz4=';
 
-    // Touch control variables
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const minSwipeDistance = 50;
-
     // Event listeners
     startBtn.addEventListener('click', startGame);
     pauseBtn.addEventListener('click', togglePause);
@@ -115,43 +122,93 @@ let obstacles = [];
     // Touch control handlers
     function handleTouchStart(e) {
         e.preventDefault();
-        touchStartX = e.changedTouches[0].screenX;
+        if (touchId === null) {
+            touchId = e.changedTouches[0].identifier;
+            touchStartX = e.changedTouches[0].clientX;
+            touchStartY = e.changedTouches[0].clientY;
+        }
     }
 
     function handleTouchEnd(e) {
         e.preventDefault();
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    }
-
-    function handleTouchMove(e) {
-    e.preventDefault();
-    const touchX = e.touches[0].clientX;
-    const canvasRect = canvas.getBoundingClientRect();
-    
-    // Calculate scaled position
-    const scaleX = canvas.width / canvasRect.width;
-    const touchPosX = (touchX - canvasRect.left) * scaleX;
-    
-    // Continuous movement
-    carX = Math.max(laneWidth / 2, 
-                   Math.min(canvas.width - carWidth - laneWidth / 2, 
-                           touchPosX - carWidth / 2));
-}
-    function handleSwipe() {
-        const dx = touchEndX - touchStartX;
-        if (Math.abs(dx) > minSwipeDistance) {
-            if (dx > 0) {
-                // Swipe right
-                carX = Math.min(canvas.width - carWidth - laneWidth / 2, carX + laneWidth);
-            } else {
-                // Swipe left
-                carX = Math.max(laneWidth / 2, carX - laneWidth);
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            if (e.changedTouches[i].identifier === touchId) {
+                touchEndX = e.changedTouches[i].clientX;
+                touchEndY = e.changedTouches[i].clientY;
+                handleSwipe();
+                touchId = null;
+                break;
             }
         }
     }
 
-   function handleKeyDown(e) {
+    function handleTouchMove(e) {
+        e.preventDefault();
+        for (let i = 0; i < e.touches.length; i++) {
+            if (e.touches[i].identifier === touchId) {
+                const touchX = e.touches[i].clientX;
+                const touchY = e.touches[i].clientY;
+                const canvasRect = canvas.getBoundingClientRect();
+                
+                // Account for canvas scaling
+                const scaleX = canvas.width / canvasRect.width;
+                const touchPosX = (touchX - canvasRect.left) * scaleX;
+                
+                carX = Math.max(laneWidth / 2, 
+                              Math.min(canvas.width - carWidth - laneWidth / 2, 
+                                      touchPosX - carWidth / 2));
+                break;
+            }
+        }
+    }
+
+    function handleSwipe() {
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+        
+        // Check if it's primarily a horizontal swipe
+        if (Math.abs(dx) > Math.abs(dy) {
+            if (Math.abs(dx) > minSwipeDistance) {
+                if (dx > 0) {
+                    // Swipe right
+                    carX = Math.min(canvas.width - carWidth - laneWidth / 2, carX + laneWidth);
+                } else {
+                    // Swipe left
+                    carX = Math.max(laneWidth / 2, carX - laneWidth);
+                }
+            }
+        }
+    }
+
+    // Add virtual buttons for mobile
+    if (isMobile) {
+        const touchLeft = document.querySelector('.touch-left');
+        const touchRight = document.querySelector('.touch-right');
+        const touchUp = document.querySelector('.touch-up');
+        const touchDown = document.querySelector('.touch-down');
+        
+        // Left button
+        touchLeft.addEventListener('touchstart', () => keys.ArrowLeft = true);
+        touchLeft.addEventListener('touchend', () => keys.ArrowLeft = false);
+        touchLeft.addEventListener('touchcancel', () => keys.ArrowLeft = false);
+        
+        // Right button
+        touchRight.addEventListener('touchstart', () => keys.ArrowRight = true);
+        touchRight.addEventListener('touchend', () => keys.ArrowRight = false);
+        touchRight.addEventListener('touchcancel', () => keys.ArrowRight = false);
+        
+        // Up button
+        touchUp.addEventListener('touchstart', () => keys.ArrowUp = true);
+        touchUp.addEventListener('touchend', () => keys.ArrowUp = false);
+        touchUp.addEventListener('touchcancel', () => keys.ArrowUp = false);
+        
+        // Down button
+        touchDown.addEventListener('touchstart', () => keys.ArrowDown = true);
+        touchDown.addEventListener('touchend', () => keys.ArrowDown = false);
+        touchDown.addEventListener('touchcancel', () => keys.ArrowDown = false);
+    }
+
+    function handleKeyDown(e) {
         if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
             keys[e.key] = true;
             e.preventDefault();
@@ -166,18 +223,19 @@ let obstacles = [];
     }
 
     function resetGame() {
-    score = 0;
-    level = 1;
-    lives = 3;
-    gameSpeed = isMobile ? 8 : 5;
-    obstacles = [];
-    carX = canvas.width / 2 - carWidth / 2;
-    roadY = 0;
-    framesSinceLastObstacle = 0;
-    obstacleFrequency = 120;
-    shakeDuration = 0;
-    collisionFlashFrames = 0;
-}
+        score = 0;
+        level = 1;
+        lives = 3;
+        gameSpeed = isMobile ? 8 : 5;
+        obstacles = [];
+        carX = canvas.width / 2 - carWidth / 2;
+        roadY = 0;
+        framesSinceLastObstacle = 0;
+        obstacleFrequency = 120;
+        shakeDuration = 0;
+        collisionFlashFrames = 0;
+        updateUI();
+    }
 
     function startGame() {
         if (gameOverDiv) {
@@ -186,7 +244,6 @@ let obstacles = [];
         }
         
         resetGame();
-        updateUI();
         gameRunning = true;
         gamePaused = false;
         startBtn.textContent = 'Restart Game';
@@ -264,26 +321,24 @@ let obstacles = [];
     }
 
     function triggerScreenShake() {
-        shakeIntensity = isMobile ? 5 : 10; // Less intense on mobile
+        shakeIntensity = isMobile ? 5 : 10;
         shakeDuration = 20;
         lastShakeTime = 0;
     }
 
     function update() {
         // Move car (keyboard controls)
-        if (!isMobile) {
-            if (keys.ArrowLeft && carX > laneWidth / 2) {
-                carX -= carSpeed;
-            }
-            if (keys.ArrowRight && carX < canvas.width - carWidth - laneWidth / 2) {
-                carX += carSpeed;
-            }
-            if (keys.ArrowUp && gameSpeed < 10) {
-                gameSpeed += 0.05;
-            }
-            if (keys.ArrowDown && gameSpeed > 2) {
-                gameSpeed -= 0.05;
-            }
+        if (keys.ArrowLeft && carX > laneWidth / 2) {
+            carX -= carSpeed;
+        }
+        if (keys.ArrowRight && carX < canvas.width - carWidth - laneWidth / 2) {
+            carX += carSpeed;
+        }
+        if (keys.ArrowUp && gameSpeed < 15) {
+            gameSpeed += 0.05;
+        }
+        if (keys.ArrowDown && gameSpeed > 2) {
+            gameSpeed -= 0.05;
         }
 
         // Move road
@@ -360,7 +415,7 @@ let obstacles = [];
     }
 
     function getRandomColor() {
-        const colors = ['#e74c3c', '#f39c12', '#2ecc71', '#9b59b6', '#1abc9c'];
+        const colors = ['#e74c3c', '#f39c12', '#2ecc71', '#9b59b6', '#1abc9c', '#3498db', '#e67e22'];
         return colors[Math.floor(Math.random() * colors.length)];
     }
 
@@ -383,8 +438,11 @@ let obstacles = [];
         // Clear canvas
         ctx.clearRect(-shakeOffsetX, -shakeOffsetY, canvas.width, canvas.height);
         
-        // Draw road
-        ctx.fillStyle = '#34495e';
+        // Draw road with gradient
+        const roadGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        roadGradient.addColorStop(0, '#2c3e50');
+        roadGradient.addColorStop(1, '#34495e');
+        ctx.fillStyle = roadGradient;
         ctx.fillRect(-shakeOffsetX, -shakeOffsetY, canvas.width, canvas.height);
         
         // Draw road markings
@@ -411,12 +469,19 @@ let obstacles = [];
         ctx.lineTo(laneWidth * 2, canvas.height);
         ctx.stroke();
         
-        // Draw obstacles
+        // Draw obstacles with shadow effect
         for (const obstacle of obstacles) {
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(obstacle.x + 3, obstacle.y + 3, obstacle.width, obstacle.height);
+            
+            // Main obstacle
             ctx.fillStyle = obstacle.color;
             ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.fillRect(obstacle.x + 5, obstacle.y + 5, obstacle.width - 10, obstacle.height - 10);
+            
+            // Inner highlight
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(obstacle.x + 5, obstacle.y + 5, obstacle.width - 10, 10);
         }
         
         // Draw car with collision flash
@@ -439,6 +504,7 @@ let obstacles = [];
         scoreElement.textContent = score;
         levelElement.textContent = level;
         livesElement.textContent = lives;
+        highScoreElement.textContent = highScore;
     }
 
     function gameOver() {
@@ -446,11 +512,18 @@ let obstacles = [];
         cancelAnimationFrame(animationId);
         backgroundMusic.pause();
         
+        // Update high score
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('highScore', highScore);
+        }
+        
         gameOverDiv = document.createElement('div');
         gameOverDiv.className = 'game-over';
         gameOverDiv.innerHTML = `
             <h2>Game Over</h2>
-            <p>Your final score: <strong>${score}</strong></p>
+            <p>Your score: <strong>${score}</strong></p>
+            <p>High score: <strong>${highScore}</strong></p>
             <p>Level reached: <strong>${level}</strong></p>
             <button id="playAgainBtn">Play Again</button>
         `;
@@ -478,4 +551,7 @@ let obstacles = [];
     }
 
     window.addEventListener('resize', handleResize);
+    
+    // Initialize UI
+    updateUI();
 });
